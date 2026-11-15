@@ -39,8 +39,8 @@ export async function requestCoachStep(messages: ChatMessage[]): Promise<string>
     body: JSON.stringify({
       model: 'openai/gpt-oss-20b',
       messages,
-      temperature: 0.7,
-      max_tokens: 120,
+      temperature: 0.3,
+      max_tokens: 300,
     }),
   });
 

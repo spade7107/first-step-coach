@@ -49,9 +49,11 @@ export async function requestCoachStep(messages: ChatMessage[]): Promise<string>
   }
 
   const data = await response.json();
+  console.log("Groq Response:", JSON.stringify(data, null, 2)); 
   const content = data?.choices?.[0]?.message?.content;
 
   if (typeof content !== 'string' || !content.trim()) {
+    console.error("Missing content. Full data:", data); 
     throw new Error('Unexpected empty response from coaching service.');
   }
 

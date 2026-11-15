@@ -1,0 +1,6 @@
+{
+  "name": "First-Step Coach",
+  "description": "No roadmaps. Just one tiny action.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

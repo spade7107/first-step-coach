@@ -1,0 +1,86 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+    --canvas-bg: #f8faff;
+    --grid-line: rgba(59, 130, 246, 0.065);
+  }
+
+  .dark {
+    --canvas-bg: #060b18;
+    --grid-line: rgba(148, 163, 184, 0.065);
+  }
+
+  html {
+    font-family: var(--font-sans);
+    background-color: var(--canvas-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--canvas-bg);
+    transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono-tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Subtle architectural grid overlay inspired by Reference 2 */
+.pastel-grid-pattern {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 35%, #000 35%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 35%, #000 35%, transparent 100%);
+}
+
+/* Soft blended pastel sky & indigo gradient wash inspired by References 1 & 2 */
+.sky-gradient-light {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -10%, rgba(147, 197, 253, 0.55) 0%, rgba(199, 210, 254, 0.32) 45%, transparent 78%),
+    radial-gradient(circle at 15% 22%, rgba(191, 219, 254, 0.45) 0%, transparent 45%),
+    radial-gradient(circle at 85% 28%, rgba(221, 214, 254, 0.4) 0%, transparent 45%);
+}
+
+.sky-gradient-dark {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -12%, rgba(30, 64, 175, 0.52) 0%, rgba(30, 58, 138, 0.25) 46%, transparent 78%),
+    radial-gradient(circle at 18% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 42%),
+    radial-gradient(circle at 82% 26%, rgba(129, 140, 248, 0.14) 0%, transparent 42%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

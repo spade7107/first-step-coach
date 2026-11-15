@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First-Step Coach</title>
+  <style>
+    :root {
+      --bg-start: #070b14;
+      --bg-mid: #0f172a;
+      --bg-end: #1e3a8a;
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: radial-gradient(circle at 50% 0%, var(--bg-end) 0%, var(--bg-mid) 40%, var(--bg-start) 100%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.4) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 85% 60%, rgba(255,255,255,0.2) 50%, transparent 50%),
+        radial-gradient(1px 1px at 45% 80%, rgba(255,255,255,0.3) 50%, transparent 50%),
+        radial-gradient(2px 2px at 70% 15%, rgba(255,255,255,0.15) 50%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 580px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.6), 0 0 80px rgba(59,130,246,0.08);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .header { text-align: center; margin-bottom: 36px; }
+    
+    .logo-icon {
+      width: 48px; height: 48px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 16px rgba(96, 165, 250, 0.2);
+    }
+    .logo-icon svg { width: 24px; height: 24px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #e2e8f0, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .header p { color: var(--text-secondary); font-size: 14px; font-weight: 400; letter-spacing: 0.2px; }
+
+    .input-group { display: flex; flex-direction: column; gap: 16px; margin-bottom: 8px; }
+    
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 8px 8px 8px 24px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .input-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+    .input-wrapper input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text-primary); font-size: 16px; font-family: var(--font);
+      padding: 12px 0;
+    }
+    .input-wrapper input::placeholder { color: #475569; }
+
+    .btn-primary {
+      background: var(--accent); color: white; border: none;
+      border-radius: 12px; padding: 14px 24px;
+      font-size: 15px; font-weight: 500; cursor: pointer;
+      font-family: var(--font); transition: all 0.2s;
+      box-shadow: 0 4px 12px var(--accent-glow);
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .step-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 12px;
+      animation: fadeIn 0.4s ease-out;
+    }
+    .step-card.hidden { display: none; }
+    .input-group.hidden { display: none; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .step-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .step-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); }
+    .step-badge { font-size: 12px; color: var(--text-secondary); background: rgba(255,255,255,0.06); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+    
+    .step-content {
+      font-size: 19px; font-weight: 400; line-height: 1.6;
+      color: var(--text-primary); margin-bottom: 28px;
+    }
+
+    .step-actions { display: flex; gap: 12px; }
+    
+    .btn-secondary {
+      flex: 1; background: rgba(255,255,255,0.04); color: var(--text-primary);
+      border: 1px solid var(--glass-border); border-radius: 14px;
+      padding: 14px; font-size: 15px; font-weight: 500; cursor: pointer;
+      font-family: var(--font); transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+    
+    .btn-secondary.accent {
+      background: var(--accent); border-color: var(--accent);
+      color: white; box-shadow: 0 4px 12px var(--accent-glow);
+    }
+    .btn-secondary.accent:hover { background: var(--accent-hover); }
+
+    .footer { text-align: center; margin-top: 28px; }
+    .footer button {
+      background: none; border: none; color: var(--text-secondary);
+      text-decoration: underline; text-underline-offset: 4px; cursor: pointer;
+      font-size: 13px; font-family: var(--font); transition: color 0.2s;
+    }
+    .footer button:hover { color: var(--text-primary); }
+
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.2); border-top-color: white;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #ef4444; color: white; padding: 14px 28px;
+      border-radius: 14px; font-size: 14px; font-weight: 500;
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+      opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 480px) {
+      .app-container { padding: 28px 20px; border-radius: 24px; }
+      .step-actions { flex-direction: column; }
+      .input-wrapper { flex-direction: column; padding: 12px; gap: 12px; }
+      .input-wrapper input { width: 100%; text-align: center; }
+      .btn-primary { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="header">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <h1>First-Step Coach</h1>
+      <p>No roadmaps. Just one tiny action.</p>
+    </div>
+
+    <div class="input-group" id="inputSection">
+      <div class="input-wrapper">
+        <input type="text" id="goalInput" placeholder="What do you want to learn?" autocomplete="off">
+        <button class="btn-primary" id="startBtn">Start</button>
+      </div>
+    </div>
+
+    <div class="step-card hidden" id="stepCard">
+      <div class="step-header">
+        <span class="step-label">Current Action</span>
+        <span class="step-badge" id="stepCount">Step 1</span>
+      </div>
+      <div class="step-content" id="stepContent"></div>
+      <div class="step-actions">
+        <button class="btn-secondary" id="stuckBtn">I'm stuck</button>
+        <button class="btn-secondary accent" id="didItBtn">Did it</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button id="resetBtn">Start over</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ============================================================
+    // 1. CONFIGURATION
+    // ============================================================
+    const SYSTEM_PROMPT = `You are First-Step Coach. Your only job is to provide exactly ONE tiny next action (under 30 minutes) to help the user start learning their goal. Never give a roadmap. Be extremely concise. If the user says "Stuck", shrink the current step into an even smaller micro-step. Always respond with just the action, no explanations, no markdown, no quotes.`;
+
+    // ============================================================
+    // 2. STATE MANAGEMENT
+    // ============================================================
+    let state = { goal: '', currentStep: '', stepNumber: 1, history: [] };
+
+    function loadState() {
+      const saved = localStorage.getItem('firstStepCoachState');
+      if (saved) {
+        try { state = JSON.parse(saved); } catch (e) { console.warn('State parse error', e); }
+      }
+      render();
+    }
+
+    function saveState() {
+      localStorage.setItem('firstStepCoachState', JSON.stringify(state));
+    }
+
+    // ============================================================
+    // 3. UI RENDERING
+    // ============================================================
+    const inputSection = document.getElementById('inputSection');
+    const stepCard = document.getElementById('stepCard');
+    const stepContent = document.getElementById('stepContent');
+    const stepCount = document.getElementById('stepCount');
+    const goalInput = document.getElementById('goalInput');
+    const startBtn = document.getElementById('startBtn');
+    const stuckBtn = document.getElementById('stuckBtn');
+    const didItBtn = document.getElementById('didItBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const toast = document.getElementById('toast');
+
+    function render() {
+      if (state.goal && state.currentStep) {
+        inputSection.classList.add('hidden');
+        stepCard.classList.remove('hidden');
+        stepContent.textContent = state.currentStep;
+        stepCount.textContent = `Step ${state.stepNumber}`;
+        goalInput.value = state.goal;
+      } else {
+        inputSection.classList.remove('hidden');
+        stepCard.classList.add('hidden');
+        goalInput.value = state.goal || '';
+        setTimeout(() => goalInput.focus(), 100);
+      }
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function setLoading(loading) {
+      startBtn.disabled = loading;
+      stuckBtn.disabled = loading;
+      didItBtn.disabled = loading;
+      if (loading) {
+        startBtn.innerHTML = '<span class="spinner"></span>';
+      } else {
+        startBtn.innerHTML = 'Start';
+      }
+    }
+
+    // ============================================================
+    // 4. SECURE AI INTEGRATION
+    // ============================================================
+    async function callGroq(messages) {
+      // Calls our Vercel backend, NOT Groq directly
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'openai/gpt-oss-20b',
+          messages: messages,
+          temperature: 0.7,
+          max_tokens: 120
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+    }
+
+    function buildMessages(userMessage) {
+      const messages = [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: `My learning goal is: "${state.goal}". Please give me the very first tiny action to start.` }
+      ];
+      for (const h of state.history) {
+        messages.push({ role: 'user', content: h.action === 'didIt' ? 'Did it' : 'Stuck' });
+      }
+      messages.push({ role: 'user', content: userMessage });
+      return messages;
+    }
+
+    // ============================================================
+    // 5. ACTION HANDLERS
+    // ============================================================
+    async function startGoal() {
+      const goal = goalInput.value.trim();
+      if (!goal) { showToast('Please enter a goal first.'); return; }
+
+      state.goal = goal;
+      state.currentStep = '';
+      state.stepNumber = 1;
+      state.history = [];
+      saveState();
+
+      setLoading(true);
+      try {
+        const messages = buildMessages(`My learning goal is: "${goal}". Please give me the very first tiny action to start.`);
+        const step = await callGroq(messages);
+        state.currentStep = step;
+        state.history.push({ action: 'start', step });
+        saveState();
+        render();
+      } catch (error) {
+        console.error(error);
+        showToast('Failed to get a step. Check backend/API key.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function handleDidIt() {
+      if (!state.goal || !state.currentStep) return;
+      state.history.push({ action: 'didIt', step: state.currentStep });
+      state.stepNumber += 1;
+      saveState();
+
+      setLoading(true);
+      try {
+        const messages = buildMessages('Did it. What is the next tiny step?');
+        const step = await callGroq(messages);
+        state.currentStep = step;
+        state.history.push({ action: 'next', step });
+        saveState();
+        render();
+      } catch (error) {
+        console.error(error);
+        showToast('Failed to get next step. Try again.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function handleStuck() {
+      if (!state.goal || !state.currentStep) return;
+      state.history.push({ action: 'stuck', step: state.currentStep });
+      saveState();
+
+      setLoading(true);
+      try {
+        const messages = buildMessages(`I'm stuck on this step: "${state.currentStep}". Please shrink it into an even smaller micro-step.`);
+        const step = await callGroq(messages);
+        state.currentStep = step;
+        state.history.push({ action: 'shrink', step });
+        saveState();
+        render();
+      } catch (error) {
+        console.error(error);
+        showToast('Failed to shrink step. Try again.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function handleReset() {
+      state = { goal: '', currentStep: '', stepNumber: 1, history: [] };
+      saveState();
+      render();
+    }
+
+    // ============================================================
+    // 6. EVENT LISTENERS & INIT
+    // ============================================================
+    startBtn.addEventListener('click', startGoal);
+    goalInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') startGoal(); });
+    didItBtn.addEventListener('click', handleDidIt);
+    stuckBtn.addEventListener('click', handleStuck);
+    resetBtn.addEventListener('click', handleReset);
+
+    loadState();
+  </script>
+</body>
+</html>
